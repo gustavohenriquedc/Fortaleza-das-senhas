@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fortaleza das Senhas 🔐</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --background: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #22c55e;
+            --error: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            color: #818cf8;
+        }
+
+        p {
+            margin-bottom: 20px;
+            line-height: 1.6;
+            color: var(--text-muted);
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 10px;
+        }
+
+        /* Card de Desafio */
+        .scenarie-box {
+            background-color: #0f172a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary);
+            text-align: left;
+            font-size: 1.1rem;
+            color: var(--text);
+        }
+
+        /* Feedback */
+        .feedback-box {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            text-align: left;
+        }
+
+        .feedback-success {
+            background-color: rgba(34, 197, 94, 0.2);
+            border: 1px solid var(--success);
+            color: #4ade80;
+        }
+
+        .feedback-error {
+            background-color: rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--error);
+            color: #f87171;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- TELA INICIAL -->
+        <div id="start-screen">
+            <h1>Fortaleza das Senhas 🔐</h1>
+            <p>Bem-vindo ao teste de segurança digital! Sua missão é defender sua identidade online. Você enfrentará 5 desafios envolvendo criação de senhas, e-mails suspeitos e golpes virtuais. Escolha com sabedoria para manter seus dados protegidos!</p>
+            <button class="btn" onclick="startGame()">Iniciar Missão</button>
+        </div>
+
+        <!-- TELA DE JOGO -->
+        <div id="game-screen" class="hidden">
+            <div class="status-bar">
+                <span id="score-display">Pontos: 0</span>
+                <span id="lives-display">Vidas: ❤️❤️❤️</span>
+            </div>
+            
+            <p style="text-align: left; font-weight: bold; color: #818cf8;">Desafio <span id="current-phase">1</span> de 5</p>
+            <div id="scenarie" class="scenarie-box">Carregando desafio...</div>
+
+            <div id="options-container">
+                <!-- Os botões de alternativas serão gerados via JS -->
+            </div>
+
+            <!-- Caixa de Feedback -->
+            <div id="feedback" class="feedback-box hidden">
+                <p id="feedback-text" style="color: inherit; margin-bottom: 10px;"></p>
+                <button class="btn" id="next-btn" onclick="nextPhase()">Avançar</button>
+            </div>
+        </div>
+
+        <!-- TELA FINAL -->
+        <div id="end-screen" class="hidden">
+            <h1 id="end-title">Fim de Jogo!</h1>
+            <p id="end-message"></p>
+            <button class="btn" onclick="restartGame()">Jogar Novamente</button>
+        </div>
+    </div>
+
+    <script>
+        // Banco de dados dos desafios
+        const database = [
+            {
+                id: 1,
+                scenario: "Você precisa criar uma nova senha para sua conta bancária. Qual das opções abaixo é a mais segura?",
+                options: [
+                    { text: "suamigafofinha123 (Fácil de lembrar)", correct: false },
+                    { text: "G@7o_v04d0r!99 (Mistura letras, números e símbolos)", correct: true },
+                    { text: "12345678 (Padrão universal rápido)", correct: false }
+                ],
+                explanation: "Senhas fortes misturam letras maiúsculas, minúsculas, números e caracteres especiais (@, !, _), dificultando ataques de força bruta."
+            },
+            {
+                id: 2,
+                scenario: "Você recebe um e-mail do 'Banco Central' dizendo que seu CPF está irregular e que você deve clicar em um link urgente para regularizar. O que você faz?",
+                options: [
+                    { text: "Clico no link imediatamente para resolver o problema.", correct: false },
+                    { text: "Ignoro e apago o e-mail, pois bancos não enviam links urgentes de regularização por e-mail.", correct: true },
+                    { text: "Respondo ao e-mail enviando uma foto do meu documento.", correct: false }
+                ],
+                explanation: "Isso é Phishing! Órgãos oficiais e bancos não pedem dados sensíveis ou cliques em links urgentes por e-mail ou SMS."
+            },
+            {
+                id: 3,
+                scenario: "Você quer usar a mesma senha do seu e-mail principal nas suas redes sociais e jogos online para não esquecer. Isso é seguro?",
+                options: [
+                    { text: "Sim, desde que a senha seja muito forte.", correct: false },
+                    { text: "Não, se um site for hackeado, os criminosos terão acesso a todas as suas contas.", correct: true }
+                ],
+                explanation: "Usar a mesma senha em tudo cria um efeito dominó. Se um serviço vazar seus dados, todas as suas contas ficam vulneráveis."
+            },
+            {
+                id: 4,
+                scenario: "Um amigo no WhatsApp pede que você envie um código de 6 dígitos que acabou de chegar no seu SMS para 'confirmar um convite'. O que você faz?",
+                options: [
+                    { text: "Não envio. Esse código provavelmente é a verificação para clonar o meu WhatsApp.", correct: true },
+                    { text: "Envio rápido, afinal é o meu amigo pedindo.", correct: false }
+                ],
+                explanation: "Esse código de 6 dígitos geralmente é a autenticação do seu próprio aplicativo. Nunca compartilhe códigos recebidos por SMS."
+            },
+            {
+                id: 5,
+                scenario: "O que é a 'Autenticação de Dois Fatores' (2FA) e por que ela é importante?",
+                options: [
+                    { text: "É uma ferramenta que apaga suas fotos automaticamente.", correct: false },
+                    { text: "É uma camada extra de segurança que pede uma segunda confirmação (como um código no celular) além da senha.", correct: true },
+                    { text: "É um vírus que duplica as senhas salvas.", correct: false }
+                ],
+                explanation: "O 2FA garante que, mesmo que alguém descubra a sua senha, essa pessoa não conseguirá entrar na conta sem o segundo código físico."
+            }
+        ];
+
+        // Estado do jogo
+        let currentPhaseIndex = 0;
+        let score = 0;
+        let lives = 3;
+
+        // Elementos DOM
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const endScreen = document.getElementById('end-screen');
+        const scenarieBox = document.getElementById('scenarie');
+        const optionsContainer = document.getElementById('options-container');
+        const feedbackBox = document.getElementById('feedback');
+        const feedbackText = document.getElementById('feedback-text');
+        const scoreDisplay = document.getElementById('score-display');
+        const livesDisplay = document.getElementById('lives-display');
+        const currentPhaseDisplay = document.getElementById('current-phase');
+
+        function startGame() {
+            startScreen.classList.add('hidden');
+            endScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            currentPhaseIndex = 0;
+            score = 0;
+            lives = 3;
+            updateStatus();
+            loadPhase();
+        }
+
+        function updateStatus() {
+            scoreDisplay.textContent = `Pontos: ${score}`;
+            livesDisplay.textContent = `Vidas: ${'❤️'.repeat(lives)}`;
+            currentPhaseDisplay.textContent = currentPhaseIndex + 1;
+        }
+
+        function loadPhase() {
+            feedbackBox.classList.add('hidden');
+            optionsContainer.innerHTML = '';
+            
